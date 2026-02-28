@@ -379,6 +379,22 @@
         <div class="pm-slot" id="ps-g6"><input type="file" accept="image/*" onchange="pmUpload(this,'g6')"><img class="prev" id="pv-g6" src="" alt=""><button class="pm-del" onclick="pmRemove(event,'g6')">✕</button><div class="ph"><div class="ph-ico">⚙️</div><div class="ph-name">Photo 6</div><div class="ph-hint">Iron Gate</div></div></div>
       </div>
 
+      <div class="pm-lbl">Company Logo</div>
+      <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;margin-bottom:6px;">
+        <div class="pm-slot" id="ps-logo" style="width:200px;aspect-ratio:3/1;flex-shrink:0;">
+          <input type="file" accept="image/*" onchange="pmUpload(this,'logo')">
+          <img class="prev" id="pv-logo" src="" alt="">
+          <button class="pm-del" onclick="pmRemove(event,'logo')">✕</button>
+          <div class="ph"><div class="ph-ico">🏷️</div><div class="ph-name">Logo Image</div><div class="ph-hint">PNG transparent recommended</div></div>
+        </div>
+        <div style="font-size:0.82rem;color:var(--gray);line-height:1.7;padding-top:4px;max-width:340px;">
+          <strong style="color:var(--navy);display:block;margin-bottom:4px;">Logo tips:</strong>
+          Best size: <strong>300×100px</strong> or similar wide format.<br>
+          Use a <strong>PNG with transparent background</strong> so it looks clean on the dark navbar.<br>
+          When uploaded, your logo image replaces the text name in both the navbar and footer.
+        </div>
+      </div>
+
       <div class="pm-tip">
         <strong>💡 Tips:</strong> Photos are stored in your browser and stay after refreshing. Use JPG/PNG files — smaller files load faster. Click the red <strong>✕</strong> on any photo to remove it. When going online, these photos carry over automatically since they live in browser storage.
       </div>
@@ -389,8 +405,13 @@
 <!-- ══ NAVBAR ══ -->
 <nav>
   <a href="#hero" class="logo">
-    <div class="logo-icon">K</div>
-    <div class="logo-text"><span class="logo-name">Kayne Constructions</span><span class="logo-sub">Building Excellence</span></div>
+    <img id="img-logo" src="" alt="Kayne Constructions" style="display:none;max-height:42px;max-width:200px;object-fit:contain;">
+    <div id="logo-default">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="logo-icon">K</div>
+        <div class="logo-text"><span class="logo-name">Kayne Constructions</span><span class="logo-sub">Building Excellence</span></div>
+      </div>
+    </div>
   </a>
   <ul class="nav-links">
     <li><a href="#about">About</a></li>
@@ -570,7 +591,13 @@
 <footer>
   <div class="ft-top">
     <div>
-      <div class="logo"><div class="logo-icon">K</div><div class="logo-text"><span class="logo-name">Kayne Constructions</span><span class="logo-sub">Building Excellence</span></div></div>
+      <div class="logo">
+        <img id="img-logo-footer" src="" alt="Kayne Constructions" style="display:none;max-height:42px;max-width:200px;object-fit:contain;">
+        <div id="logo-default-footer" style="display:flex;align-items:center;gap:12px;">
+          <div class="logo-icon">K</div>
+          <div class="logo-text"><span class="logo-name">Kayne Constructions</span><span class="logo-sub">Building Excellence</span></div>
+        </div>
+      </div>
       <p class="ft-desc">Premium bathroom, kitchen, and fencing contractors. Serving homeowners with quality craftsmanship and outstanding results.</p>
     </div>
     <div class="ft-col"><h4>Services</h4><ul><li><a href="#services">Bathroom Remodels</a></li><li><a href="#services">Kitchen Renovations</a></li><li><a href="#services">Fence Installation</a></li><li><a href="#contact">Free Estimates</a></li></ul></div>
@@ -591,12 +618,30 @@ const S = {
 // ══ APPLY PHOTOS TO PAGE ══
 function applyAll() {
   applyHero();
+  applyLogo();
   applySimple('about-main','img-about-main','em-about-main');
   applySimple('about-accent','img-about-accent','em-about-accent');
   applySimple('svc-bath','img-svc-bath','em-svc-bath');
   applySimple('svc-kit','img-svc-kit','em-svc-kit');
   applySimple('svc-fence','img-svc-fence','em-svc-fence');
   [1,2,3,4,5,6].forEach(applyGallery);
+}
+
+function applyLogo() {
+  const src = S.get('logo');
+  // Navbar
+  const imgNav    = document.getElementById('img-logo');
+  const defNav    = document.getElementById('logo-default');
+  // Footer
+  const imgFt     = document.getElementById('img-logo-footer');
+  const defFt     = document.getElementById('logo-default-footer');
+  if (src) {
+    imgNav.src = src; imgNav.style.display = 'block'; defNav.style.display = 'none';
+    imgFt.src  = src; imgFt.style.display  = 'block'; defFt.style.display  = 'none';
+  } else {
+    imgNav.style.display = 'none'; defNav.style.display = '';
+    imgFt.style.display  = 'none'; defFt.style.display  = '';
+  }
 }
 
 function applyHero() {
@@ -707,7 +752,7 @@ function authToggleEye() {
 }
 
 function pmActuallyOpen() {
-  ['hero','about-main','about-accent','svc-bath','svc-kit','svc-fence','g1','g2','g3','g4','g5','g6']
+  ['hero','logo','about-main','about-accent','svc-bath','svc-kit','svc-fence','g1','g2','g3','g4','g5','g6']
     .forEach(pmRefreshSlot);
   document.getElementById('pm-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
