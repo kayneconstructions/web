@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kayne Constructions | Bathroom, Kitchen & Fence Specialists</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#1a2332; --navy-light:#243245; --gold:#c9a84c; --gold-light:#e8c96a;
+    --cream:#f8f4ee; --white:#ffffff; --gray:#6b7280; --light-gray:#f3f0eb; --dark:#111827;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Lato',sans-serif;background:var(--white);color:var(--dark);overflow-x:hidden;}
+
+  /* ─── PASSWORD MODAL ─── */
+  #pm-auth{
+    display:none;position:fixed;inset:0;z-index:10000;
+    background:rgba(17,24,39,0.92);backdrop-filter:blur(6px);
+    align-items:center;justify-content:center;
+  }
+  #pm-auth.open{display:flex;}
+  .auth-box{
+    background:var(--white);border-radius:10px;padding:40px 36px;
+    width:100%;max-width:380px;box-shadow:0 30px 80px rgba(0,0,0,0.5);
+    text-align:center;
+  }
+  .auth-icon{font-size:2.5rem;margin-bottom:12px;}
+  .auth-box h3{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--navy);margin-bottom:6px;}
+  .auth-box p{font-size:0.85rem;color:var(--gray);margin-bottom:24px;}
+  .auth-input-wrap{position:relative;margin-bottom:16px;}
+  .auth-input{
+    width:100%;padding:13px 44px 13px 16px;
+    border:1.5px solid #ddd8ce;border-radius:4px;
+    font-family:'Lato',sans-serif;font-size:1rem;color:var(--dark);
+    outline:none;transition:border-color 0.2s;letter-spacing:0.08em;
+  }
+  .auth-input:focus{border-color:var(--gold);}
+  .auth-input.err{border-color:#dc2626;animation:shake 0.35s ease;}
+  .auth-eye{
+    position:absolute;right:13px;top:50%;transform:translateY(-50%);
+    background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--gray);
+    padding:2px;
+  }
+  .auth-err{font-size:0.8rem;color:#dc2626;margin-bottom:14px;min-height:18px;}
+  .auth-submit{
+    width:100%;padding:13px;background:var(--navy);color:var(--white);
+    border:2px solid var(--navy);border-radius:4px;
+    font-family:'Lato',sans-serif;font-weight:700;font-size:0.9rem;
+    letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.25s;
+  }
+  .auth-submit:hover{background:var(--gold);color:var(--navy);border-color:var(--gold);}
+  .auth-cancel{
+    margin-top:12px;background:none;border:none;cursor:pointer;
+    font-size:0.82rem;color:var(--gray);text-decoration:underline;
+  }
+  .auth-cancel:hover{color:var(--navy);}
+  @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+
+  /* ─── PHOTO MANAGER BUTTON ─── */
+  #pm-btn{
+    position:fixed;bottom:24px;right:24px;z-index:9999;
+    background:var(--gold);color:var(--navy);border:none;
+    padding:13px 20px;border-radius:50px;
+    font-family:'Lato',sans-serif;font-weight:700;font-size:0.85rem;letter-spacing:0.06em;
+    cursor:pointer;box-shadow:0 8px 30px rgba(201,168,76,0.45);
+    display:flex;align-items:center;gap:8px;transition:all 0.25s;
+  }
+  #pm-btn:hover{background:var(--gold-light);transform:translateY(-2px);}
+
+  /* ─── PHOTO MANAGER OVERLAY ─── */
+  #pm-overlay{
+    display:none;position:fixed;inset:0;z-index:9998;
+    background:rgba(17,24,39,0.88);backdrop-filter:blur(4px);
+    overflow-y:auto;padding:40px 16px;
+  }
+  #pm-overlay.open{display:block;}
+  .pm-panel{background:var(--white);max-width:900px;margin:0 auto;border-radius:10px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.45);}
+  .pm-head{background:var(--navy);padding:22px 30px;display:flex;align-items:center;justify-content:space-between;}
+  .pm-head h2{font-family:'Playfair Display',serif;color:var(--white);font-size:1.35rem;}
+  .pm-head p{color:rgba(255,255,255,0.45);font-size:0.82rem;margin-top:3px;}
+  .pm-x{background:rgba(255,255,255,0.1);border:none;color:var(--white);width:34px;height:34px;border-radius:50%;font-size:1rem;cursor:pointer;transition:background 0.2s;flex-shrink:0;}
+  .pm-x:hover{background:rgba(255,255,255,0.25);}
+  .pm-body{padding:28px 30px;}
+  .pm-lbl{font-size:0.68rem;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);margin:24px 0 14px;padding-bottom:8px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:8px;}
+  .pm-lbl::before{content:'';width:18px;height:2px;background:var(--gold);}
+  .pm-lbl:first-child{margin-top:0;}
+  .pm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:14px;margin-bottom:6px;}
+  .pm-slot{
+    position:relative;border-radius:6px;overflow:hidden;
+    border:2px dashed #ddd;aspect-ratio:4/3;cursor:pointer;
+    transition:border-color 0.2s;background:#fafafa;
+  }
+  .pm-slot:hover{border-color:var(--gold);}
+  .pm-slot.filled{border-style:solid;border-color:var(--gold);}
+  .pm-slot input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;z-index:3;}
+  .pm-slot .prev{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;}
+  .pm-slot.filled .prev{display:block;}
+  .pm-slot .ph{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:10px;text-align:center;}
+  .pm-slot.filled .ph{display:none;}
+  .ph-ico{font-size:1.9rem;}
+  .ph-name{font-size:0.7rem;font-weight:700;color:var(--navy);letter-spacing:0.04em;}
+  .ph-hint{font-size:0.62rem;color:var(--gray);}
+  .pm-del{
+    position:absolute;top:5px;right:5px;z-index:4;
+    background:rgba(220,38,38,0.92);color:#fff;border:none;
+    border-radius:50%;width:22px;height:22px;font-size:0.7rem;
+    cursor:pointer;display:none;align-items:center;justify-content:center;
+  }
+  .pm-slot.filled .pm-del{display:flex;}
+  .pm-del:hover{background:rgba(185,28,28,1);}
+  .pm-tip{background:rgba(201,168,76,0.09);border:1px solid rgba(201,168,76,0.3);border-radius:6px;padding:14px 18px;font-size:0.83rem;color:var(--navy);line-height:1.65;margin-top:24px;}
+  .pm-tip strong{color:var(--gold);}
+
+  /* ─── NAVBAR ─── */
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(26,35,50,0.97);backdrop-filter:blur(8px);border-bottom:1px solid rgba(201,168,76,0.25);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:72px;transition:all 0.3s ease;}
+  .logo{display:flex;align-items:center;gap:12px;text-decoration:none;}
+  .logo-icon{width:42px;height:42px;background:var(--gold);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--navy);font-weight:900;}
+  .logo-text{display:flex;flex-direction:column;}
+  .logo-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--white);letter-spacing:0.05em;line-height:1.1;}
+  .logo-sub{font-size:0.65rem;color:var(--gold);letter-spacing:0.2em;text-transform:uppercase;}
+  .nav-links{display:flex;gap:32px;list-style:none;align-items:center;}
+  .nav-links a{text-decoration:none;color:rgba(255,255,255,0.8);font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;transition:color 0.2s;font-weight:400;}
+  .nav-links a:hover{color:var(--gold);}
+  .nav-cta{background:var(--gold)!important;color:var(--navy)!important;padding:10px 22px;border-radius:2px;font-weight:700!important;}
+  .nav-cta:hover{background:var(--gold-light)!important;}
+  .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;}
+  .hamburger span{display:block;width:24px;height:2px;background:var(--white);transition:all 0.3s;}
+
+  /* ─── HERO ─── */
+  #hero{min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden;padding:120px 5% 80px;}
+  #hero-bg{position:absolute;inset:0;z-index:0;background:var(--navy);}
+  #hero-bg img{width:100%;height:100%;object-fit:cover;opacity:0.35;}
+  .hero-overlay{position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 70% 50%,rgba(201,168,76,0.08) 0%,transparent 70%),radial-gradient(ellipse 40% 40% at 20% 80%,rgba(201,168,76,0.05) 0%,transparent 60%),linear-gradient(to right,rgba(26,35,50,0.88) 40%,rgba(26,35,50,0.45) 100%);}
+  .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(201,168,76,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,0.06) 1px,transparent 1px);background-size:60px 60px;}
+  .hero-content{position:relative;z-index:2;max-width:680px;}
+  .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.4);color:var(--gold);font-size:0.75rem;letter-spacing:0.2em;text-transform:uppercase;padding:8px 16px;border-radius:2px;margin-bottom:28px;animation:fadeUp 0.6s ease both;}
+  .hero-badge::before{content:'';width:6px;height:6px;background:var(--gold);border-radius:50%;}
+  .hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.8rem,6vw,5rem);font-weight:900;color:var(--white);line-height:1.08;margin-bottom:24px;animation:fadeUp 0.6s 0.1s ease both;}
+  .hero-title span{color:var(--gold);display:block;}
+  .hero-desc{font-size:1.1rem;color:rgba(255,255,255,0.65);line-height:1.8;margin-bottom:40px;font-weight:300;animation:fadeUp 0.6s 0.2s ease both;max-width:520px;}
+  .hero-btns{display:flex;gap:16px;flex-wrap:wrap;animation:fadeUp 0.6s 0.3s ease both;}
+  .btn-primary{background:var(--gold);color:var(--navy);padding:16px 36px;font-weight:700;font-size:0.9rem;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;border-radius:2px;border:2px solid var(--gold);transition:all 0.25s;display:inline-flex;align-items:center;gap:8px;}
+  .btn-primary:hover{background:transparent;color:var(--gold);}
+  .btn-secondary{background:transparent;color:var(--white);padding:16px 36px;font-weight:700;font-size:0.9rem;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;border-radius:2px;border:2px solid rgba(255,255,255,0.3);transition:all 0.25s;}
+  .btn-secondary:hover{border-color:var(--gold);color:var(--gold);}
+  .hero-stats{position:absolute;bottom:60px;right:5%;display:flex;gap:48px;animation:fadeUp 0.6s 0.4s ease both;}
+  .stat{text-align:center;}
+  .stat-number{font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:700;color:var(--gold);line-height:1;}
+  .stat-label{font-size:0.7rem;color:rgba(255,255,255,0.5);letter-spacing:0.15em;text-transform:uppercase;margin-top:4px;}
+  .hero-scroll{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;color:rgba(255,255,255,0.4);font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;animation:bounce 2s infinite;}
+  .scroll-line{width:1px;height:40px;background:linear-gradient(to bottom,rgba(201,168,76,0.6),transparent);}
+
+  /* ─── ABOUT ─── */
+  #about{padding:110px 5%;background:var(--cream);display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;}
+  .about-visual{position:relative;}
+  .about-main-img{width:100%;aspect-ratio:4/3;background:linear-gradient(135deg,var(--navy),var(--navy-light));border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:5rem;}
+  .about-main-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .about-accent-img{position:absolute;bottom:-24px;right:-24px;width:45%;aspect-ratio:1;background:var(--gold);border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:2.5rem;box-shadow:0 20px 60px rgba(201,168,76,0.3);}
+  .about-accent-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .about-badge{position:absolute;top:-16px;left:-16px;background:var(--navy);color:var(--gold);padding:16px 20px;border-radius:4px;font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;line-height:1.2;box-shadow:0 8px 30px rgba(26,35,50,0.3);z-index:2;}
+  .about-badge span{display:block;font-family:'Lato',sans-serif;font-size:0.7rem;color:rgba(255,255,255,0.5);letter-spacing:0.15em;text-transform:uppercase;font-weight:400;}
+  .sec-tag{font-size:0.75rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+  .sec-tag::before{content:'';width:30px;height:2px;background:var(--gold);}
+  .sec-tag.c{justify-content:center;}
+  .sec-tag.c::before{display:none;}
+  .sec-tag.c::after{content:'';width:30px;height:2px;background:var(--gold);}
+  .sec-title{font-family:'Playfair Display',serif;font-size:clamp(2rem,3.5vw,3rem);font-weight:700;color:var(--navy);line-height:1.2;margin-bottom:20px;}
+  .sec-title em{font-style:italic;color:var(--gold);}
+  .about-text{color:var(--gray);font-size:1rem;line-height:1.85;margin-bottom:24px;font-weight:300;}
+  .about-list{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:28px;}
+  .about-list li{display:flex;align-items:center;gap:10px;font-size:0.9rem;color:var(--dark);}
+  .about-list li::before{content:'✓';width:22px;height:22px;background:var(--gold);color:var(--navy);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:900;flex-shrink:0;}
+
+  /* ─── SERVICES ─── */
+  #services{padding:110px 5%;background:var(--white);}
+  .sec-hdr{text-align:center;max-width:600px;margin:0 auto 64px;}
+  .svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;}
+  .svc-card{border:1px solid #e5e0d6;border-radius:4px;overflow:hidden;transition:all 0.3s;background:var(--white);}
+  .svc-card:hover{transform:translateY(-6px);box-shadow:0 24px 60px rgba(26,35,50,0.12);border-color:var(--gold);}
+  .svc-img{width:100%;aspect-ratio:16/10;display:flex;align-items:center;justify-content:center;font-size:4rem;position:relative;overflow:hidden;}
+  .svc-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .svc-img::after{content:'';position:absolute;bottom:0;left:0;right:0;height:50%;background:linear-gradient(to top,rgba(0,0,0,0.3),transparent);pointer-events:none;}
+  .bathroom{background:linear-gradient(135deg,#2d4a6e,#1a2e45);}
+  .kitchen{background:linear-gradient(135deg,#3d2b1a,#5c3d22);}
+  .fence{background:linear-gradient(135deg,#2a3d20,#3d5a2b);}
+  .svc-body{padding:28px;}
+  .svc-num{font-size:0.7rem;color:var(--gold);letter-spacing:0.2em;text-transform:uppercase;font-weight:700;margin-bottom:8px;}
+  .svc-name{font-family:'Playfair Display',serif;font-size:1.45rem;font-weight:700;color:var(--navy);margin-bottom:12px;}
+  .svc-desc{font-size:0.9rem;color:var(--gray);line-height:1.75;margin-bottom:20px;}
+  .svc-feats{list-style:none;display:flex;flex-direction:column;gap:7px;margin-bottom:24px;}
+  .svc-feats li{font-size:0.85rem;color:var(--dark);display:flex;align-items:center;gap:8px;}
+  .svc-feats li::before{content:'—';color:var(--gold);font-weight:700;}
+  .svc-link{font-size:0.8rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--navy);text-decoration:none;border-bottom:2px solid var(--gold);padding-bottom:2px;transition:color 0.2s;}
+  .svc-link:hover{color:var(--gold);}
+
+  /* ─── GALLERY ─── */
+  #gallery{padding:110px 5%;background:var(--light-gray);}
+  .gal-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:220px 220px;gap:16px;margin-top:48px;}
+  .gal-item{border-radius:4px;overflow:hidden;position:relative;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:3rem;}
+  .gal-item:nth-child(1){grid-column:span 2;}
+  .gal-item:nth-child(4){grid-column:span 2;}
+  .gal-item::before{content:'';position:absolute;inset:0;background:rgba(26,35,50,0.5);opacity:0;transition:opacity 0.3s;z-index:1;}
+  .gal-item:hover::before{opacity:1;}
+  .gal-item img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .gal-emoji{position:relative;z-index:0;}
+  .gal-item.has-img .gal-emoji{display:none;}
+  .gal-lbl{position:absolute;bottom:16px;left:16px;color:var(--white);font-weight:700;font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;opacity:0;transform:translateY(8px);transition:all 0.3s;z-index:2;}
+  .gal-item:hover .gal-lbl{opacity:1;transform:translateY(0);}
+  .g1{background:linear-gradient(135deg,#2d4a6e,#1e3553);}
+  .g2{background:linear-gradient(135deg,#5c3d22,#3d2b1a);}
+  .g3{background:linear-gradient(135deg,#2a3d20,#3d5a2b);}
+  .g4{background:linear-gradient(135deg,#1a2e45,#2d4a6e);}
+  .g5{background:linear-gradient(135deg,#4a3020,#6b4830);}
+  .g6{background:linear-gradient(135deg,#354a25,#4a6530);}
+
+  /* ─── TESTIMONIALS ─── */
+  #testimonials{padding:110px 5%;background:var(--navy);position:relative;overflow:hidden;}
+  #testimonials::before{content:'"';position:absolute;top:-20px;left:3%;font-family:'Playfair Display',serif;font-size:20rem;color:rgba(201,168,76,0.05);line-height:1;pointer-events:none;}
+  .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px;}
+  .testi-card{background:rgba(255,255,255,0.05);border:1px solid rgba(201,168,76,0.2);border-radius:4px;padding:36px;transition:all 0.3s;}
+  .testi-card:hover{background:rgba(255,255,255,0.08);border-color:rgba(201,168,76,0.5);}
+  .stars{color:var(--gold);font-size:1rem;letter-spacing:2px;margin-bottom:16px;}
+  .testi-txt{color:rgba(255,255,255,0.75);font-size:0.95rem;line-height:1.8;font-style:italic;margin-bottom:24px;font-weight:300;}
+  .testi-author{display:flex;align-items:center;gap:14px;}
+  .author-av{width:44px;height:44px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;color:var(--navy);font-weight:700;font-size:1rem;flex-shrink:0;}
+  .author-name{color:var(--white);font-weight:700;font-size:0.9rem;}
+  .author-det{color:rgba(255,255,255,0.4);font-size:0.75rem;margin-top:2px;}
+
+  /* ─── CTA STRIP ─── */
+  #cta-strip{background:var(--gold);padding:60px 5%;display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap;}
+  .cta-txt h2{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3vw,2.4rem);font-weight:700;color:var(--navy);margin-bottom:6px;}
+  .cta-txt p{color:rgba(26,35,50,0.7);font-size:1rem;}
+  .btn-dark{background:var(--navy);color:var(--white);padding:16px 40px;font-weight:700;font-size:0.9rem;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;border-radius:2px;border:2px solid var(--navy);transition:all 0.25s;white-space:nowrap;}
+  .btn-dark:hover{background:transparent;color:var(--navy);}
+
+  /* ─── CONTACT ─── */
+  #contact{padding:110px 5%;background:var(--cream);display:grid;grid-template-columns:1fr 1.4fr;gap:80px;align-items:start;}
+  .ci h2{font-family:'Playfair Display',serif;font-size:clamp(2rem,3vw,2.8rem);font-weight:700;color:var(--navy);line-height:1.2;margin-bottom:20px;}
+  .ci p{color:var(--gray);font-size:1rem;line-height:1.8;font-weight:300;margin-bottom:36px;}
+  .c-dets{display:flex;flex-direction:column;gap:20px;}
+  .c-item{display:flex;align-items:flex-start;gap:16px;}
+  .c-ico{width:44px;height:44px;background:var(--navy);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+  .c-item-txt strong{display:block;font-size:0.8rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:3px;}
+  .c-item-txt span{font-size:0.95rem;color:var(--dark);}
+  .c-form{background:var(--white);padding:44px;border-radius:4px;box-shadow:0 8px 40px rgba(26,35,50,0.08);border:1px solid #e5e0d6;}
+  .f-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .f-grp{display:flex;flex-direction:column;gap:6px;margin-bottom:20px;}
+  .f-grp label{font-size:0.78rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--navy);font-weight:700;}
+  .f-grp input,.f-grp select,.f-grp textarea{padding:12px 16px;border:1.5px solid #ddd8ce;border-radius:2px;font-family:'Lato',sans-serif;font-size:0.95rem;color:var(--dark);background:var(--white);transition:border-color 0.2s;outline:none;}
+  .f-grp input:focus,.f-grp select:focus,.f-grp textarea:focus{border-color:var(--gold);}
+  .f-grp textarea{resize:vertical;min-height:120px;}
+  .f-submit{background:var(--navy);color:var(--white);border:2px solid var(--navy);padding:16px 40px;font-family:'Lato',sans-serif;font-weight:700;font-size:0.9rem;letter-spacing:0.1em;text-transform:uppercase;border-radius:2px;cursor:pointer;transition:all 0.25s;width:100%;}
+  .f-submit:hover{background:var(--gold);color:var(--navy);border-color:var(--gold);}
+
+  /* ─── FOOTER ─── */
+  footer{background:var(--dark);color:rgba(255,255,255,0.5);padding:60px 5% 32px;}
+  .ft-top{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:48px;padding-bottom:48px;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:32px;}
+  .ft-desc{font-size:0.85rem;line-height:1.7;margin-top:16px;color:rgba(255,255,255,0.4);}
+  .ft-col h4{color:var(--gold);font-size:0.75rem;letter-spacing:0.2em;text-transform:uppercase;font-weight:700;margin-bottom:20px;}
+  .ft-col ul{list-style:none;display:flex;flex-direction:column;gap:10px;}
+  .ft-col ul li a{text-decoration:none;color:rgba(255,255,255,0.45);font-size:0.87rem;transition:color 0.2s;}
+  .ft-col ul li a:hover{color:var(--gold);}
+  .ft-bot{display:flex;align-items:center;justify-content:space-between;font-size:0.8rem;}
+  .ft-bot a{color:var(--gold);text-decoration:none;}
+
+  /* ─── ANIMATION ─── */
+  @keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(6px);}}
+  .reveal{opacity:0;transform:translateY(30px);transition:opacity 0.65s ease,transform 0.65s ease;}
+  .reveal.visible{opacity:1;transform:translateY(0);}
+
+  /* ─── MOBILE ─── */
+  @media(max-width:768px){
+    .nav-links{display:none;}.hamburger{display:flex;}
+    #about{grid-template-columns:1fr;gap:48px;}.about-visual{display:none;}
+    .svc-grid{grid-template-columns:1fr;}.testi-grid{grid-template-columns:1fr;}
+    #contact{grid-template-columns:1fr;gap:40px;}.ft-top{grid-template-columns:1fr 1fr;gap:32px;}
+    .ft-bot{flex-direction:column;gap:8px;text-align:center;}
+    .gal-grid{grid-template-columns:1fr 1fr;grid-template-rows:auto;}
+    .gal-item:nth-child(1),.gal-item:nth-child(4){grid-column:span 1;}
+    .hero-stats{position:static;margin-top:48px;}
+    #hero{flex-direction:column;justify-content:center;}
+    .f-row{grid-template-columns:1fr;}.c-form{padding:28px;}
+    #cta-strip{flex-direction:column;text-align:center;}
+    .about-list{grid-template-columns:1fr;}
+    .pm-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));}
+    .pm-body{padding:20px 18px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ PHOTO MANAGER BUTTON (hidden until ?admin=true in URL) ══ -->
+<button id="pm-btn" onclick="pmOpen()" style="display:none;">📸 Manage Photos</button>
+
+<!-- ══ PASSWORD MODAL ══ -->
+<div id="pm-auth">
+  <div class="auth-box">
+    <div class="auth-icon">🔐</div>
+    <h3>Photo Manager</h3>
+    <p>Enter your password to manage photos.</p>
+    <div class="auth-input-wrap">
+      <input class="auth-input" id="auth-pw" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')authSubmit()">
+      <button class="auth-eye" id="auth-eye-btn" onclick="authToggleEye()" title="Show/hide">👁️</button>
+    </div>
+    <div class="auth-err" id="auth-err"></div>
+    <button class="auth-submit" onclick="authSubmit()">Unlock →</button>
+    <br>
+    <button class="auth-cancel" onclick="authCancel()">Cancel</button>
+  </div>
+</div>
+
+<!-- ══ PHOTO MANAGER OVERLAY ══ -->
+<div id="pm-overlay">
+  <div class="pm-panel">
+    <div class="pm-head">
+      <div><h2>📸 Photo Manager</h2><p>Click any slot to upload — changes save automatically & survive page refresh.</p></div>
+      <button class="pm-x" onclick="pmClose()">✕</button>
+    </div>
+    <div class="pm-body">
+
+      <div class="pm-lbl">Hero Background</div>
+      <div class="pm-grid">
+        <div class="pm-slot" id="ps-hero">
+          <input type="file" accept="image/*" onchange="pmUpload(this,'hero')">
+          <img class="prev" id="pv-hero" src="" alt="">
+          <button class="pm-del" onclick="pmRemove(event,'hero')">✕</button>
+          <div class="ph"><div class="ph-ico">🏠</div><div class="ph-name">Hero Background</div><div class="ph-hint">Full-width behind title</div></div>
+        </div>
+      </div>
+
+      <div class="pm-lbl">About Section</div>
+      <div class="pm-grid">
+        <div class="pm-slot" id="ps-about-main">
+          <input type="file" accept="image/*" onchange="pmUpload(this,'about-main')">
+          <img class="prev" id="pv-about-main" src="" alt="">
+          <button class="pm-del" onclick="pmRemove(event,'about-main')">✕</button>
+          <div class="ph"><div class="ph-ico">🏡</div><div class="ph-name">Main Photo</div><div class="ph-hint">Large left image</div></div>
+        </div>
+        <div class="pm-slot" id="ps-about-accent">
+          <input type="file" accept="image/*" onchange="pmUpload(this,'about-accent')">
+          <img class="prev" id="pv-about-accent" src="" alt="">
+          <button class="pm-del" onclick="pmRemove(event,'about-accent')">✕</button>
+          <div class="ph"><div class="ph-ico">🔨</div><div class="ph-name">Accent Photo</div><div class="ph-hint">Small corner image</div></div>
+        </div>
+      </div>
+
+      <div class="pm-lbl">Service Cards</div>
+      <div class="pm-grid">
+        <div class="pm-slot" id="ps-svc-bath">
+          <input type="file" accept="image/*" onchange="pmUpload(this,'svc-bath')">
+          <img class="prev" id="pv-svc-bath" src="" alt="">
+          <button class="pm-del" onclick="pmRemove(event,'svc-bath')">✕</button>
+          <div class="ph"><div class="ph-ico">🛁</div><div class="ph-name">Bathroom Card</div><div class="ph-hint">Service image</div></div>
+        </div>
+        <div class="pm-slot" id="ps-svc-kit">
+          <input type="file" accept="image/*" onchange="pmUpload(this,'svc-kit')">
+          <img class="prev" id="pv-svc-kit" src="" alt="">
+          <button class="pm-del" onclick="pmRemove(event,'svc-kit')">✕</button>
+          <div class="ph"><div class="ph-ico">🍳</div><div class="ph-name">Kitchen Card</div><div class="ph-hint">Service image</div></div>
+        </div>
+        <div class="pm-slot" id="ps-svc-fence">
+          <input type="file" accept="image/*" onchange="pmUpload(this,'svc-fence')">
+          <img class="prev" id="pv-svc-fence" src="" alt="">
+          <button class="pm-del" onclick="pmRemove(event,'svc-fence')">✕</button>
+          <div class="ph"><div class="ph-ico">🏡</div><div class="ph-name">Fence Card</div><div class="ph-hint">Service image</div></div>
+        </div>
+      </div>
+
+      <div class="pm-lbl">Gallery — 6 Project Photos</div>
+      <div class="pm-grid">
+        <div class="pm-slot" id="ps-g1"><input type="file" accept="image/*" onchange="pmUpload(this,'g1')"><img class="prev" id="pv-g1" src="" alt=""><button class="pm-del" onclick="pmRemove(event,'g1')">✕</button><div class="ph"><div class="ph-ico">🛁</div><div class="ph-name">Photo 1</div><div class="ph-hint">Spa Bathroom</div></div></div>
+        <div class="pm-slot" id="ps-g2"><input type="file" accept="image/*" onchange="pmUpload(this,'g2')"><img class="prev" id="pv-g2" src="" alt=""><button class="pm-del" onclick="pmRemove(event,'g2')">✕</button><div class="ph"><div class="ph-ico">🍳</div><div class="ph-name">Photo 2</div><div class="ph-hint">Modern Kitchen</div></div></div>
+        <div class="pm-slot" id="ps-g3"><input type="file" accept="image/*" onchange="pmUpload(this,'g3')"><img class="prev" id="pv-g3" src="" alt=""><button class="pm-del" onclick="pmRemove(event,'g3')">✕</button><div class="ph"><div class="ph-ico">🏡</div><div class="ph-name">Photo 3</div><div class="ph-hint">Cedar Fence</div></div></div>
+        <div class="pm-slot" id="ps-g4"><input type="file" accept="image/*" onchange="pmUpload(this,'g4')"><img class="prev" id="pv-g4" src="" alt=""><button class="pm-del" onclick="pmRemove(event,'g4')">✕</button><div class="ph"><div class="ph-ico">🚿</div><div class="ph-name">Photo 4</div><div class="ph-hint">Walk-in Shower</div></div></div>
+        <div class="pm-slot" id="ps-g5"><input type="file" accept="image/*" onchange="pmUpload(this,'g5')"><img class="prev" id="pv-g5" src="" alt=""><button class="pm-del" onclick="pmRemove(event,'g5')">✕</button><div class="ph"><div class="ph-ico">🪵</div><div class="ph-name">Photo 5</div><div class="ph-hint">Kitchen Island</div></div></div>
+        <div class="pm-slot" id="ps-g6"><input type="file" accept="image/*" onchange="pmUpload(this,'g6')"><img class="prev" id="pv-g6" src="" alt=""><button class="pm-del" onclick="pmRemove(event,'g6')">✕</button><div class="ph"><div class="ph-ico">⚙️</div><div class="ph-name">Photo 6</div><div class="ph-hint">Iron Gate</div></div></div>
+      </div>
+
+      <div class="pm-tip">
+        <strong>💡 Tips:</strong> Photos are stored in your browser and stay after refreshing. Use JPG/PNG files — smaller files load faster. Click the red <strong>✕</strong> on any photo to remove it. When going online, these photos carry over automatically since they live in browser storage.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NAVBAR ══ -->
+<nav>
+  <a href="#hero" class="logo">
+    <div class="logo-icon">K</div>
+    <div class="logo-text"><span class="logo-name">Kayne Constructions</span><span class="logo-sub">Building Excellence</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#testimonials">Reviews</a></li>
+    <li><a href="#contact" class="nav-cta">Get a Quote</a></li>
+  </ul>
+  <div class="hamburger" onclick="toggleNav()"><span></span><span></span><span></span></div>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section id="hero">
+  <div id="hero-bg"><img id="img-hero" src="" alt="" style="display:none;"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-badge">Licensed &amp; Insured Contractors</div>
+    <h1 class="hero-title">Transform Your<br><span>Home With</span>Expert Craftsmanship</h1>
+    <p class="hero-desc">Specializing in premium bathroom remodels, kitchen renovations, and custom fence installations. Quality work, transparent pricing, results that exceed expectations.</p>
+    <div class="hero-btns">
+      <a href="#contact" class="btn-primary">Get a Free Quote →</a>
+      <a href="#services" class="btn-secondary">Our Services</a>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-number">15+</div><div class="stat-label">Years Experience</div></div>
+    <div class="stat"><div class="stat-number">500+</div><div class="stat-label">Projects Completed</div></div>
+    <div class="stat"><div class="stat-number">100%</div><div class="stat-label">Satisfaction Rate</div></div>
+  </div>
+  <div class="hero-scroll"><div class="scroll-line"></div>Scroll</div>
+</section>
+
+<!-- ══ ABOUT ══ -->
+<section id="about">
+  <div class="about-visual">
+    <div class="about-main-img" style="position:relative;">
+      <span id="em-about-main">🏠</span>
+      <img id="img-about-main" src="" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+    </div>
+    <div class="about-accent-img" style="position:relative;">
+      <span id="em-about-accent">🔨</span>
+      <img id="img-about-accent" src="" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+    </div>
+    <div class="about-badge">15+ Years<br>of Excellence<span>In Business</span></div>
+  </div>
+  <div class="about-content reveal">
+    <div class="sec-tag">Who We Are</div>
+    <h2 class="sec-title">Crafting Spaces You'll <em>Love</em> to Live In</h2>
+    <p class="about-text">At Kayne Constructions, we believe every home deserves to be beautiful and functional. Since our founding, we've been transforming kitchens, bathrooms, and outdoor spaces with meticulous attention to detail and a commitment to quality that shows in every project.</p>
+    <p class="about-text">Our team of skilled tradespeople brings decades of combined experience, working closely with homeowners to bring their vision to life — on time and on budget.</p>
+    <ul class="about-list">
+      <li>Fully Licensed &amp; Insured</li><li>Free In-Home Estimates</li>
+      <li>3D Design Previews</li><li>On-Time Completion</li>
+      <li>Premium Materials</li><li>Post-Project Support</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ══ SERVICES ══ -->
+<section id="services">
+  <div class="sec-hdr reveal">
+    <div class="sec-tag c">What We Do</div>
+    <h2 class="sec-title">Our Specialist <em>Services</em></h2>
+    <p style="color:var(--gray);font-size:1rem;line-height:1.8;font-weight:300;margin-top:12px;">From luxury spa bathrooms to functional kitchens and elegant fencing — done with care and quality your home deserves.</p>
+  </div>
+  <div class="svc-grid">
+    <div class="svc-card reveal">
+      <div class="svc-img bathroom" style="position:relative;">
+        <span id="em-svc-bath">🛁</span>
+        <img id="img-svc-bath" src="" alt="" style="display:none;">
+      </div>
+      <div class="svc-body">
+        <div class="svc-num">01 — Bathroom Remodels</div>
+        <h3 class="svc-name">Luxury Bathroom Transformations</h3>
+        <p class="svc-desc">From complete gut renovations to targeted upgrades, we create beautiful, functional bathrooms tailored to your style and budget.</p>
+        <ul class="svc-feats"><li>Custom tile work &amp; flooring</li><li>Walk-in showers &amp; soaker tubs</li><li>Vanity &amp; fixture upgrades</li><li>Full plumbing &amp; electrical</li></ul>
+        <a href="#contact" class="svc-link">Request a Quote</a>
+      </div>
+    </div>
+    <div class="svc-card reveal">
+      <div class="svc-img kitchen" style="position:relative;">
+        <span id="em-svc-kit">🍳</span>
+        <img id="img-svc-kit" src="" alt="" style="display:none;">
+      </div>
+      <div class="svc-body">
+        <div class="svc-num">02 — Kitchen Remodels</div>
+        <h3 class="svc-name">Dream Kitchen Renovations</h3>
+        <p class="svc-desc">We design and build kitchens that combine stunning aesthetics with practical functionality — the heart of every home, perfected.</p>
+        <ul class="svc-feats"><li>Custom cabinetry &amp; millwork</li><li>Countertop installation</li><li>Island &amp; open-plan layouts</li><li>Appliance integration</li></ul>
+        <a href="#contact" class="svc-link">Request a Quote</a>
+      </div>
+    </div>
+    <div class="svc-card reveal">
+      <div class="svc-img fence" style="position:relative;">
+        <span id="em-svc-fence">🏡</span>
+        <img id="img-svc-fence" src="" alt="" style="display:none;">
+      </div>
+      <div class="svc-body">
+        <div class="svc-num">03 — Fence Installation</div>
+        <h3 class="svc-name">All Styles of Fencing</h3>
+        <p class="svc-desc">Whether you need privacy, security, or curb appeal, we install fences in every style using top-grade materials.</p>
+        <ul class="svc-feats"><li>Wood, vinyl &amp; aluminum</li><li>Privacy, picket &amp; split-rail</li><li>Chain link &amp; ornamental iron</li><li>Gates &amp; custom designs</li></ul>
+        <a href="#contact" class="svc-link">Request a Quote</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ GALLERY ══ -->
+<section id="gallery">
+  <div class="sec-hdr reveal">
+    <div class="sec-tag c">Our Work</div>
+    <h2 class="sec-title">Project <em>Gallery</em></h2>
+    <p style="color:var(--gray);font-size:1rem;line-height:1.8;font-weight:300;margin-top:12px;">A glimpse at the quality and craftsmanship we bring to every project.</p>
+  </div>
+  <div class="gal-grid reveal">
+    <div class="gal-item g1" id="gi-1"><span class="gal-emoji">🛁</span><img id="img-g1" src="" alt="" style="display:none;"><span class="gal-lbl">Spa Bathroom</span></div>
+    <div class="gal-item g2" id="gi-2"><span class="gal-emoji">🍳</span><img id="img-g2" src="" alt="" style="display:none;"><span class="gal-lbl">Modern Kitchen</span></div>
+    <div class="gal-item g3" id="gi-3"><span class="gal-emoji">🏡</span><img id="img-g3" src="" alt="" style="display:none;"><span class="gal-lbl">Cedar Privacy Fence</span></div>
+    <div class="gal-item g4" id="gi-4"><span class="gal-emoji">🚿</span><img id="img-g4" src="" alt="" style="display:none;"><span class="gal-lbl">Walk-in Shower</span></div>
+    <div class="gal-item g5" id="gi-5"><span class="gal-emoji">🪵</span><img id="img-g5" src="" alt="" style="display:none;"><span class="gal-lbl">Kitchen Island</span></div>
+    <div class="gal-item g6" id="gi-6"><span class="gal-emoji">⚙️</span><img id="img-g6" src="" alt="" style="display:none;"><span class="gal-lbl">Iron Gate</span></div>
+  </div>
+  <p style="text-align:center;margin-top:28px;color:var(--gray);font-size:0.85rem;">Use the <strong style="color:var(--gold);">📸 Manage Photos</strong> button (bottom-right corner) to upload your project photos.</p>
+</section>
+
+<!-- ══ TESTIMONIALS ══ -->
+<section id="testimonials">
+  <div class="sec-hdr reveal">
+    <div class="sec-tag c" style="color:var(--gold);">What Clients Say</div>
+    <h2 class="sec-title" style="color:var(--white);">Real Reviews from <em>Happy Homeowners</em></h2>
+  </div>
+  <div class="testi-grid">
+    <div class="testi-card reveal"><div class="stars">★★★★★</div><p class="testi-txt">"Kayne Constructions completely transformed our outdated bathroom into a spa-like retreat. The attention to detail was incredible — every tile perfectly placed. We couldn't be happier."</p><div class="testi-author"><div class="author-av">SJ</div><div><div class="author-name">Sarah &amp; James T.</div><div class="author-det">Bathroom Remodel</div></div></div></div>
+    <div class="testi-card reveal"><div class="stars">★★★★★</div><p class="testi-txt">"From the first consultation to the final walkthrough, the Kayne team was professional, communicative, and skilled. Our new kitchen has completely changed how we live in our home."</p><div class="testi-author"><div class="author-av">MR</div><div><div class="author-name">Mike &amp; Rachel D.</div><div class="author-det">Kitchen Renovation</div></div></div></div>
+    <div class="testi-card reveal"><div class="stars">★★★★★</div><p class="testi-txt">"We had a beautiful cedar privacy fence installed and the crew was fantastic — clean, fast, and the quality is outstanding. Our yard looks amazing and we get compliments constantly."</p><div class="testi-author"><div class="author-av">LP</div><div><div class="author-name">Linda P.</div><div class="author-det">Cedar Privacy Fence</div></div></div></div>
+  </div>
+</section>
+
+<!-- ══ CTA STRIP ══ -->
+<section id="cta-strip">
+  <div class="cta-txt"><h2>Ready to Start Your Project?</h2><p>Get a free, no-obligation estimate from our team today.</p></div>
+  <a href="#contact" class="btn-dark">Book a Free Consultation →</a>
+</section>
+
+<!-- ══ CONTACT ══ -->
+<section id="contact">
+  <div class="ci reveal">
+    <div class="sec-tag">Contact Us</div>
+    <h2>Let's Build Something <em style="font-style:italic;color:var(--gold);">Together</em></h2>
+    <p>Fill out the form and one of our project managers will get back to you within 24 hours to discuss your vision and provide a free estimate.</p>
+    <div class="c-dets">
+      <div class="c-item"><div class="c-ico">📞</div><div class="c-item-txt"><strong>Phone</strong><span>(555) 123-4567</span></div></div>
+      <div class="c-item"><div class="c-ico">✉️</div><div class="c-item-txt"><strong>Email</strong><span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a7cec9c1c8e7ccc6dec9c2c4c8c9d4d3d5d2c4d3cec8c9d489c4c8ca">[email&#160;protected]</a></span></div></div>
+      <div class="c-item"><div class="c-ico">📍</div><div class="c-item-txt"><strong>Service Area</strong><span>Your City &amp; Surrounding Areas</span></div></div>
+      <div class="c-item"><div class="c-ico">🕐</div><div class="c-item-txt"><strong>Hours</strong><span>Mon–Fri 7am–6pm, Sat 8am–3pm</span></div></div>
+    </div>
+  </div>
+  <div class="c-form reveal">
+    <h3 style="font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--navy);margin-bottom:28px;">Get Your Free Estimate</h3>
+    <div class="f-row">
+      <div class="f-grp"><label>First Name</label><input type="text" placeholder="John"></div>
+      <div class="f-grp"><label>Last Name</label><input type="text" placeholder="Smith"></div>
+    </div>
+    <div class="f-row">
+      <div class="f-grp"><label>Phone Number</label><input type="tel" placeholder="(555) 000-0000"></div>
+      <div class="f-grp"><label>Email Address</label><input type="email" placeholder="john@email.com"></div>
+    </div>
+    <div class="f-grp"><label>Service Interested In</label><select><option value="">Select a service...</option><option>Bathroom Remodel</option><option>Kitchen Renovation</option><option>Fence Installation</option><option>Multiple Services</option><option>Other</option></select></div>
+    <div class="f-grp"><label>Project Details</label><textarea placeholder="Tell us about your project — style, timeline, budget?"></textarea></div>
+    <button class="f-submit" onclick="handleSubmit(event)">Send My Free Quote Request →</button>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="ft-top">
+    <div>
+      <div class="logo"><div class="logo-icon">K</div><div class="logo-text"><span class="logo-name">Kayne Constructions</span><span class="logo-sub">Building Excellence</span></div></div>
+      <p class="ft-desc">Premium bathroom, kitchen, and fencing contractors. Serving homeowners with quality craftsmanship and outstanding results.</p>
+    </div>
+    <div class="ft-col"><h4>Services</h4><ul><li><a href="#services">Bathroom Remodels</a></li><li><a href="#services">Kitchen Renovations</a></li><li><a href="#services">Fence Installation</a></li><li><a href="#contact">Free Estimates</a></li></ul></div>
+    <div class="ft-col"><h4>Company</h4><ul><li><a href="#about">About Us</a></li><li><a href="#gallery">Our Work</a></li><li><a href="#testimonials">Reviews</a></li><li><a href="#contact">Contact</a></li></ul></div>
+    <div class="ft-col"><h4>Contact</h4><ul><li><a href="tel:5551234567">(555) 123-4567</a></li><li><a href="/cdn-cgi/l/email-protection#caa3a4aca58aa1abb3a4afa9a5a4b9beb8bfa9bea3a5a4b9e4a9a5a7">Email Us</a></li><li><a href="#contact">Get a Quote</a></li></ul></div>
+  </div>
+  <div class="ft-bot"><span>© 2025 Kayne Constructions. All rights reserved.</span><span>Designed for <a href="#hero">Kayne Constructions</a></span></div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ══ STORAGE HELPERS ══
+const S = {
+  get: k => { try { return localStorage.getItem('kc_'+k); } catch(e){ return null; } },
+  set: (k,v) => { try { localStorage.setItem('kc_'+k,v); return true; } catch(e){ alert('Storage full! Use smaller/compressed images.'); return false; } },
+  del: k => { try { localStorage.removeItem('kc_'+k); } catch(e){} }
+};
+
+// ══ APPLY PHOTOS TO PAGE ══
+function applyAll() {
+  applyHero();
+  applySimple('about-main','img-about-main','em-about-main');
+  applySimple('about-accent','img-about-accent','em-about-accent');
+  applySimple('svc-bath','img-svc-bath','em-svc-bath');
+  applySimple('svc-kit','img-svc-kit','em-svc-kit');
+  applySimple('svc-fence','img-svc-fence','em-svc-fence');
+  [1,2,3,4,5,6].forEach(applyGallery);
+}
+
+function applyHero() {
+  const src = S.get('hero');
+  const img = document.getElementById('img-hero');
+  if(src){ img.src=src; img.style.display='block'; }
+  else { img.style.display='none'; }
+}
+
+function applySimple(key, imgId, emId) {
+  const src = S.get(key);
+  const img = document.getElementById(imgId);
+  const em  = document.getElementById(emId);
+  if(src){ img.src=src; img.style.display='block'; if(em) em.style.display='none'; }
+  else { img.style.display='none'; if(em) em.style.display=''; }
+}
+
+function applyGallery(n) {
+  const src  = S.get('g'+n);
+  const img  = document.getElementById('img-g'+n);
+  const item = document.getElementById('gi-'+n);
+  const em   = item && item.querySelector('.gal-emoji');
+  if(src){ img.src=src; img.style.display='block'; item&&item.classList.add('has-img'); if(em) em.style.display='none'; }
+  else { img.style.display='none'; item&&item.classList.remove('has-img'); if(em) em.style.display=''; }
+}
+
+// ══ PM SLOT STATE ══
+function pmRefreshSlot(key) {
+  const src  = S.get(key);
+  const slot = document.getElementById('ps-'+key);
+  const prev = document.getElementById('pv-'+key);
+  if(!slot||!prev) return;
+  if(src){ prev.src=src; slot.classList.add('filled'); }
+  else { prev.src=''; slot.classList.remove('filled'); }
+}
+
+// ══ UPLOAD ══
+function pmUpload(input, key) {
+  const file = input.files[0];
+  if(!file) return;
+  const r = new FileReader();
+  r.onload = e => {
+    if(S.set(key, e.target.result)){
+      pmRefreshSlot(key);
+      applyAll();
+    }
+    input.value='';
+  };
+  r.readAsDataURL(file);
+}
+
+// ══ REMOVE ══
+function pmRemove(e, key) {
+  e.stopPropagation();
+  S.del(key);
+  pmRefreshSlot(key);
+  applyAll();
+}
+
+// ══ PASSWORD ══
+// 🔑 Change this to your own password:
+const PM_PASSWORD = 'kayne2025';
+// Session flag — stays unlocked until page is closed
+let pmUnlocked = false;
+
+function pmOpen() {
+  if (pmUnlocked) {
+    pmActuallyOpen();
+  } else {
+    document.getElementById('pm-auth').classList.add('open');
+    document.getElementById('auth-pw').value = '';
+    document.getElementById('auth-err').textContent = '';
+    document.getElementById('auth-pw').classList.remove('err');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('auth-pw').focus(), 100);
+  }
+}
+
+function authSubmit() {
+  const input = document.getElementById('auth-pw');
+  const errEl = document.getElementById('auth-err');
+  if (input.value === PM_PASSWORD) {
+    pmUnlocked = true;
+    document.getElementById('pm-auth').classList.remove('open');
+    errEl.textContent = '';
+    input.classList.remove('err');
+    pmActuallyOpen();
+  } else {
+    input.classList.remove('err');
+    void input.offsetWidth; // re-trigger animation
+    input.classList.add('err');
+    errEl.textContent = 'Incorrect password. Please try again.';
+    input.value = '';
+    input.focus();
+  }
+}
+
+function authCancel() {
+  document.getElementById('pm-auth').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function authToggleEye() {
+  const input = document.getElementById('auth-pw');
+  const btn   = document.getElementById('auth-eye-btn');
+  if (input.type === 'password') { input.type = 'text';     btn.textContent = '🙈'; }
+  else                           { input.type = 'password'; btn.textContent = '👁️'; }
+}
+
+function pmActuallyOpen() {
+  ['hero','about-main','about-accent','svc-bath','svc-kit','svc-fence','g1','g2','g3','g4','g5','g6']
+    .forEach(pmRefreshSlot);
+  document.getElementById('pm-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+// ══ OPEN / CLOSE ══
+function pmClose() {
+  document.getElementById('pm-overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+document.getElementById('pm-overlay').addEventListener('click', e => { if(e.target===e.currentTarget) pmClose(); });
+
+// ══ SCROLL REVEAL ══
+const obs = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }), {threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// ══ MOBILE NAV ══
+let navOpen=false;
+function toggleNav(){
+  const ul=document.querySelector('.nav-links');
+  navOpen=!navOpen;
+  ul.style.cssText = navOpen
+    ? 'display:flex;flex-direction:column;position:absolute;top:72px;left:0;right:0;background:#1a2332;padding:24px 5%;gap:20px;border-bottom:1px solid rgba(201,168,76,0.2);z-index:99;'
+    : 'display:none;';
+}
+
+// ══ NAVBAR SHADOW ══
+window.addEventListener('scroll',()=>{ document.querySelector('nav').style.boxShadow=scrollY>50?'0 4px 30px rgba(0,0,0,0.3)':''; });
+
+// ══ FORM ══
+function handleSubmit(e){
+  e.preventDefault();
+  const btn=e.target;
+  const orig=btn.textContent;
+  btn.textContent="✓ Message Sent! We'll be in touch soon.";
+  btn.style.background='#2a6a2a'; btn.style.borderColor='#2a6a2a'; btn.style.color='#fff';
+  setTimeout(()=>{ btn.textContent=orig; btn.style.background=btn.style.borderColor=btn.style.color=''; },4000);
+}
+
+// ══ INIT ══
+window.addEventListener('DOMContentLoaded', () => {
+  applyAll();
+  // Show admin button ONLY when ?admin=true is in the URL — invisible to normal visitors
+  if (new URLSearchParams(window.location.search).get('admin') === 'true') {
+    document.getElementById('pm-btn').style.display = 'flex';
+  }
+});
+</script>
+</body>
+</html>
