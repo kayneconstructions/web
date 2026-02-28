@@ -112,6 +112,12 @@
   .pm-del:hover{background:rgba(185,28,28,1);}
   .pm-tip{background:rgba(201,168,76,0.09);border:1px solid rgba(201,168,76,0.3);border-radius:6px;padding:14px 18px;font-size:0.83rem;color:var(--navy);line-height:1.65;margin-top:24px;}
   .pm-tip strong{color:var(--gold);}
+  .pm-footer{padding:20px 30px;background:#f9f7f4;border-top:1px solid #ece8e0;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+  .pm-upload-btn{background:var(--gold);color:var(--navy);border:2px solid var(--gold);padding:13px 32px;border-radius:4px;font-family:'Lato',sans-serif;font-weight:700;font-size:0.88rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.25s;display:flex;align-items:center;gap:8px;}
+  .pm-upload-btn:hover{background:transparent;color:var(--navy);}
+  .pm-footer-hint{font-size:0.8rem;color:var(--gray);line-height:1.5;}
+  #pm-toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(16px);background:#1a6b3a;color:#fff;padding:14px 28px;border-radius:50px;font-family:'Lato',sans-serif;font-size:0.9rem;font-weight:700;display:flex;align-items:center;gap:10px;box-shadow:0 8px 30px rgba(0,0,0,0.25);z-index:99999;opacity:0;pointer-events:none;transition:opacity 0.35s ease,transform 0.35s ease;white-space:nowrap;}
+  #pm-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
   /* ─── NAVBAR ─── */
   nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(26,35,50,0.97);backdrop-filter:blur(8px);border-bottom:1px solid rgba(201,168,76,0.25);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:72px;transition:all 0.3s ease;}
@@ -399,8 +405,15 @@
         <strong>💡 Tips:</strong> Photos are stored in your browser and stay after refreshing. Use JPG/PNG files — smaller files load faster. Click the red <strong>✕</strong> on any photo to remove it. When going online, these photos carry over automatically since they live in browser storage.
       </div>
     </div>
+    <div class="pm-footer">
+      <div class="pm-footer-hint">Click any photo slot above to select &amp; upload a photo.<br>Changes are saved instantly to your browser.</div>
+      <button class="pm-upload-btn" onclick="pmClose()">✓ Done — Close Manager</button>
+    </div>
   </div>
 </div>
+
+<!-- ══ TOAST NOTIFICATION ══ -->
+<div id="pm-toast"><span>✅</span> <span id="pm-toast-msg">Photo added successfully!</span></div>
 
 <!-- ══ NAVBAR ══ -->
 <nav>
@@ -687,10 +700,25 @@ function pmUpload(input, key) {
     if(S.set(key, e.target.result)){
       pmRefreshSlot(key);
       applyAll();
+      // Show success toast with the slot name
+      const slot = document.getElementById('ps-'+key);
+      const name = slot ? (slot.querySelector('.ph-name')||{}).textContent || 'Photo' : 'Photo';
+      showToast('✅  ' + name + ' added successfully!');
     }
     input.value='';
   };
   r.readAsDataURL(file);
+}
+
+// ══ TOAST ══
+let toastTimer = null;
+function showToast(msg) {
+  const toast = document.getElementById('pm-toast');
+  const msgEl = document.getElementById('pm-toast-msg');
+  msgEl.textContent = msg;
+  toast.classList.add('show');
+  if(toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 3500);
 }
 
 // ══ REMOVE ══
